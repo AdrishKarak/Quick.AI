@@ -1,10 +1,13 @@
 import React from 'react';
+import Navbar from "../components/Navbar.jsx";
+import Hero from "../components/Hero.jsx";
 
 const Home = () => {
     return (
-        <div>
-            <h1>Home</h1>
-        </div>
+      <>
+      <Navbar/>
+       <Hero/>
+      </>
     );
 };
 
