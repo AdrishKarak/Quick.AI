@@ -41,34 +41,38 @@ const Hero = () => {
                     />
                 </h1>
 
-                <p className="mx-auto max-w-lg text-sm sm:text-base text-gray-600 mb-6">
+                <p className="mx-auto max-w-lg text-sm sm:text-base text-gray-500 mb-6">
                     Use AI tools for creating engaging articles, blogs, generate images,
                     review resumes, and more. Try the Premium version for more features.
                 </p>
 
                 <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-4">
-                    <button
-                        onClick={() => navigate("/ai")}
-                        className="bg-blue-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg hover:scale-105 active:scale-95 transition shadow-lg"
-                    >
-                        Start creating
+
+                    <button  onClick={() => navigate("/ai")} className="group px-8 py-2.5 bg-indigo-600 rounded-lg text-white cursor-pointer active:scale-95 transition duration-300 hover:bg-indigo-700 border border-gray-400">
+                        <p className="relative h-6 overflow-hidden">
+                            <span className="block transition-transform duration-300 group-hover:-translate-y-full">Start Creating</span>
+                            <span className="absolute w-full top-full left-1/2 -translate-x-1/2 block transition-transform duration-300 group-hover:translate-y-[-100%]">Lets go 🚀</span>
+                        </p>
                     </button>
 
-                    <button className="bg-amber-100 px-6 sm:px-8 py-2 sm:py-3 rounded-lg border border-gray-400 hover:scale-105 active:scale-95 transition shadow-lg">
-                        Watch Demo
+                    <button className="group px-8 py-2.5 bg-amber-100 rounded-lg text-black cursor-pointer active:scale-95 transition duration-300 hover:bg-amber-200 border border-gray-400">
+                        <p className="relative h-6 overflow-hidden">
+                            <span className="block transition-transform duration-300 group-hover:-translate-y-full">Watch Demo</span>
+                            <span className="absolute w-full top-full left-1/2 -translate-x-1/2 block transition-transform duration-300 group-hover:translate-y-[-100%]">Watch Demo</span>
+                        </p>
                     </button>
                 </div>
 
-                <div className="flex items-center gap-2 justify-center text-gray-600 text-sm sm:text-base mb-6">
+                <div className="flex items-center gap-2 justify-center text-gray-500 text-sm sm:text-base mb-6">
                     <img src={assets.user_group} alt="users" className="h-6 sm:h-8" />
                     Trusted by many users...
                 </div>
 
                 {/* Marquee - centered and constrained inside the hero */}
-                <div className="mx-auto w-full max-w-lg">
+                <div className="mx-auto w-full max-w-lg mt-15">
                     <Marquee gradient={false} speed={50} pauseOnHover>
                         {items.map((item, i) => (
-                            <span key={i} className="mx-6 text-base sm:text-lg font-bold whitespace-nowrap">
+                            <span key={i} className="mx-6 text-blue-600 text-base sm:text-lg font-bold whitespace-nowrap">
                 {item}
               </span>
                         ))}

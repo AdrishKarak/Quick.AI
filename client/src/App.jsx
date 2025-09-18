@@ -22,10 +22,11 @@ const App = () => {
                 <Route path='blog-titles' element={<BlogTitles/>}/>
                  <Route path='generate-images' element={<GenerateImages/>}/>
                  <Route path='remove-background' element={<RemoveBackGround/>}/>
+                    <Route path='remove-object' element={<RemoveObject/>}/>
+                    <Route path='review-resume' element={<Reviewresume/>}/>
+                    <Route path='community' element={<Community/>}/>
                 </Route>
-                <Route path={'remove-object'} element={<RemoveObject/>}/>
-                <Route path={'review-resume'} element={<Reviewresume/>}/>
-                <Route path={'community'} element={<Community/>}/>
+
 
 
             </Routes>
