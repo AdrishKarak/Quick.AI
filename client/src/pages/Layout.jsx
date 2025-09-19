@@ -32,7 +32,7 @@ const Layout = () => {
         </div>
     ) : (
         <div className='flex justify-center items-center h-screen bg-gray-100'>
-            <SignIn/>
+            <SignIn path={'/sign-in'} signUpUrl={'/sign-up'}/>
         </div>
     )
 };
