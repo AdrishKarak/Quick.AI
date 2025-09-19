@@ -72,7 +72,7 @@ const Hero = () => {
                 <div className="mx-auto w-full max-w-lg mt-15">
                     <Marquee gradient={false} speed={50} pauseOnHover>
                         {items.map((item, i) => (
-                            <span key={i} className="mx-6 text-blue-600 text-base sm:text-lg font-bold whitespace-nowrap">
+                            <span key={i} className="mx-6 text-primary text-base sm:text-lg font-bold whitespace-nowrap">
                 {item}
               </span>
                         ))}
