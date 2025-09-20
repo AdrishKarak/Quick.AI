@@ -11,3 +11,14 @@
 @theme{
     --color-primary: #5044E5;
 }
+
+.reset-tw,
+.reset-tw * {
+    all: revert !important;   /* clears only inherited styles */
+
+}
+
+
+.cl-drawerRoot{
+    z-index: 10;
+}
