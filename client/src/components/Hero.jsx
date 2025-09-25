@@ -23,7 +23,7 @@ const Hero = () => {
         >
             {/* Inner content container: centered, limited width, responsive padding */}
             <div className="w-full max-w-4xl px-6 sm:px-12 lg:px-20 text-center mt-10">
-                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-snug mb-4"  style={{
+                <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-6.5xl font-bold leading-snug mb-4"  style={{
                     display: '-webkit-box',
                     WebkitLineClamp: 2,
                     WebkitBoxOrient: 'vertical',
