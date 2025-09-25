@@ -8,7 +8,7 @@ import BlogTitles from "./pages/BlogTitles.jsx";
 import GenerateImages from "./pages/GenerateImages.jsx";
 import RemoveBackGround from "./pages/RemoveBackGround.jsx";
 import RemoveObject from "./pages/RemoveObject.jsx";
-import Reviewresume from "./pages/Reviewresume.jsx";
+import ReviewResume from "./pages/ReviewResume.jsx";
 import Community from "./pages/Community.jsx";
 
 const App = () => {
@@ -23,7 +23,7 @@ const App = () => {
                  <Route path='generate-images' element={<GenerateImages/>}/>
                  <Route path='remove-background' element={<RemoveBackGround/>}/>
                     <Route path='remove-object' element={<RemoveObject/>}/>
-                    <Route path='review-resume' element={<Reviewresume/>}/>
+                    <Route path='review-resume' element={<ReviewResume/>}/>
                     <Route path='community' element={<Community/>}/>
                 </Route>
 

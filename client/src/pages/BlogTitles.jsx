@@ -42,7 +42,7 @@ const BlogTitles = () => {
             {/*right col*/}
             <div className='w-full max-w-lg p-4 bg-white rounded-lg border border-gray-200 shadow-sm flex flex-col min-h-80 max-h-[200px] overflow-y-auto'>
                 <div className='flex items-center gap-3'>
-                    <Hash className='w-5 h-5 text-[#4A7AFF]'/>
+                    <Hash className='w-5 h-5 text-[#8E37EB]'/>
                     <h1 className='text-xl font-semibold '>Generated Title</h1>
                 </div>
                 <div className='flex-1 flex justify-center items-center bg-slate-50 mt-6 rounded-md border border-gray-300'>
