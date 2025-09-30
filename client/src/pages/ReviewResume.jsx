@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Eraser, FileText, Sparkles} from "lucide-react";
+import { FileText, Sparkles} from "lucide-react";
 
 const ReviewResume = () => {
     const[input , setInput] = useState('')
