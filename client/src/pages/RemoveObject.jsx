@@ -9,7 +9,7 @@ const RemoveObject = () => {
         e.preventDefault();
     }
     return (
-        <div className="h-screen overflow-y-auto p-6 flex gap-4 text-slate-700">
+        <div className="h-screen overflow-y-auto p-6 flex flex-col md:flex-row gap-4 text-slate-700">
             <form onSubmit={onSubmitHandler} className="w-full max-w-lg p-4 bg-white rounded-lg border border-gray-200 shadow-sm self-start">
                 <div className="flex items-center gap-3">
                     <Sparkles className="w-6 h-6 stroke-[#4A7AFF]" />
