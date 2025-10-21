@@ -55,10 +55,10 @@ const Hero = () => {
                         </p>
                     </button>
 
-                    <button className="group px-8 py-2.5 bg-amber-100 rounded-lg text-black cursor-pointer active:scale-95 transition duration-300 hover:bg-amber-200 border border-gray-400">
+                    <button onClick={() => navigate("/ai/community")} className="group px-8 py-2.5 bg-amber-100 rounded-lg text-black cursor-pointer active:scale-95 transition duration-300 hover:bg-amber-200 border border-gray-400">
                         <p className="relative h-6 overflow-hidden">
-                            <span className="block transition-transform duration-300 group-hover:-translate-y-full">Watch Demo</span>
-                            <span className="absolute w-full top-full left-1/2 -translate-x-1/2 block transition-transform duration-300 group-hover:translate-y-[-100%]">Watch Demo</span>
+                            <span className="block transition-transform duration-300 group-hover:-translate-y-full">Community</span>
+                            <span className="absolute w-full top-full left-1/2 -translate-x-1/2 block transition-transform duration-300 group-hover:translate-y-[-100%]">Community ✨</span>
                         </p>
                     </button>
                 </div>

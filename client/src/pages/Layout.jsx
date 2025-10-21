@@ -19,19 +19,11 @@ const Layout = () => {
                 }
             </nav>
 
-            <div className='flex-1 w-full flex h-[calc(100vh-64px)] relative'>
+            <div className='flex-1 w-full flex h-[calc(100vh-64px)]'>
                 <Sidebar sidebar={sidebar} setSidebar={setSidebar}/>
-                <div className='flex-1 bg-[#F4F7FB] ml-0 sm:ml-60 overflow-y-auto transition-all duration-300'>
+                <div className='flex-1 bg-[#F4F7FB] ml-0 sm:ml-60 overflow-y-auto'>
                     <Outlet/>
                 </div>
-
-                {/* Overlay for mobile when sidebar is open */}
-                {sidebar && (
-                    <div
-                        className="fixed inset-0 bg-black bg-opacity-50 z-20 sm:hidden"
-                        onClick={() => setSidebar(false)}
-                    />
-                )}
             </div>
         </div>
     ) : (
