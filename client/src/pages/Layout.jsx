@@ -12,18 +12,26 @@ const Layout = () => {
 
     return user ? (
         <div className='flex flex-col items-start justify-start h-screen'>
-            <nav className='w-full flex justify-between items-center px-8 min-h-14 border-b border-gray-200 shadow-lg cursor-pointer'>
+            <nav className='w-full flex justify-between items-center px-8 min-h-14 border-b border-gray-200 shadow-lg cursor-pointer relative z-30 bg-white'>
                 <img src={assets.logo} alt="logo" className='cursor-pointer w-32 sm:w-44' onClick={() => navigate('/')}/>
                 {
                     sidebar ? <X onClick={() => setSidebar(false)} className='w-6 h-6 cursor-pointer sm:hidden text-gray-700' /> : <Menu onClick={() => setSidebar(true)} className='w-6 h-6 cursor-pointer sm:hidden text-gray-700'/>
                 }
             </nav>
 
-            <div className='flex-1 w-full flex h-[calc(100vh-64px)]'>
+            <div className='flex-1 w-full flex h-[calc(100vh-64px)] relative'>
                 <Sidebar sidebar={sidebar} setSidebar={setSidebar}/>
-                <div className='flex-1 bg-[#F4F7FB] ml-60 max-sm:ml-0 overflow-y-auto'>
+                <div className='flex-1 bg-[#F4F7FB] ml-0 sm:ml-60 overflow-y-auto transition-all duration-300'>
                     <Outlet/>
                 </div>
+
+                {/* Overlay for mobile when sidebar is open */}
+                {sidebar && (
+                    <div
+                        className="fixed inset-0 bg-black bg-opacity-50 z-20 sm:hidden"
+                        onClick={() => setSidebar(false)}
+                    />
+                )}
             </div>
         </div>
     ) : (
