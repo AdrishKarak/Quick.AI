@@ -145,7 +145,7 @@ export const generateImage = async (req, res) => {
 export const removeImageBackground = async (req, res) => {
     try{
         const {userId} = req.auth();
-        const {image} = req.file;
+        const image = req.file;
         const plan = req.plan;
 
 
@@ -163,7 +163,7 @@ export const removeImageBackground = async (req, res) => {
             ]
         })
 
-        await sql`INSERT INTO creations (user_id, content, prompt, type, ) VALUES (${userId}, ${secure_url}, 'Remove background from the image', 'image')`;
+        await sql`INSERT INTO creations (user_id, content, prompt, type ) VALUES (${userId}, ${secure_url}, 'Remove background from the image', 'image')`;
 
         res.json({success: true, content: secure_url})
 
@@ -173,36 +173,47 @@ export const removeImageBackground = async (req, res) => {
     }
 }
 
- export const removeImageObject = async (req, res) => {
+
+export const removeImageObject = async (req, res) => {
     try {
-        const {userId} = req.auth();
-        const {object} = req.body;
-        const { image } = req.file;
-        const plan = req.plan;
+        const { userId } = req.auth; // ✅ fixed
+        const { object } = req.body;
+        const image = req.file;
 
-
-        if (plan !== 'premium_pro') {
-            return res.json({success: false, message: 'Upgrade to premium plan to use this feature.'})
+        if (!userId) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
         }
 
+        if (!image) {
+            return res.status(400).json({ success: false, message: "No image uploaded" });
+        }
 
-        const {public_id} = await cloudinary.uploader.upload(image.path)
+        const plan = req.plan || "free";
+        if (plan !== "premium_pro") {
+            return res
+                .status(403)
+                .json({ success: false, message: "Upgrade to premium plan to use this feature." });
+        }
 
-      const imageUrl=  cloudinary.url(public_id, {
-            transformation: [{effect: `gen_remove:${object}`}],
-            resource_type: 'image',
-        })
+        // ✅ Upload image to Cloudinary
+        const uploadResult = await cloudinary.uploader.upload(image.path);
+        const imageUrl = cloudinary.url(uploadResult.public_id, {
+            transformation: [{ effect: `gen_remove:${object}` }],
+            resource_type: "image",
+        });
 
-        await sql`INSERT INTO creations (user_id, content, prompt, type,)
-                  VALUES (${userId}, ${imageUrl}, ${`removed ${object} from image`}, 'image')`;
+        // ✅ Store result in database
+        await sql`
+            INSERT INTO creations (user_id, content, prompt, type)
+            VALUES (${userId}, ${imageUrl}, ${`removed ${object} from image`}, 'image')
+        `;
 
-        res.json({success: true, content: imageUrl})
-
+        res.json({ success: true, content: imageUrl });
     } catch (error) {
-        console.log(error.message);
-        res.json({success: false, message: error.message})
+        console.error("Remove Image Error:", error);
+        res.status(500).json({ success: false, message: error.message });
     }
-}
+};
 
 
 export const resumeReview = async (req, res) => {
@@ -242,7 +253,7 @@ const prompt = `Review the following resume and provide constructive feedback on
 
         const content = response.choices[0].message.content;
 
-        await sql`INSERT INTO creations (user_id, content, prompt, type,)
+        await sql`INSERT INTO creations (user_id, content, prompt, type)
                   VALUES (${userId}, ${content},'Review the uploaded resume', 'resume-review')`;
 
         res.json({success: true, content: content})

@@ -1,14 +1,38 @@
 import React, {useEffect, useState} from 'react';
-import {dummyCreationData} from "../assets/assets.js";
 import {Gem, Sparkles} from "lucide-react";
 import {Protect} from "@clerk/clerk-react";
 import CreationItem from "../components/CreationItem.jsx";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useAuth } from "@clerk/clerk-react";
+
+axios.defaults.baseURL = import.meta.env.VITE_BASE_URL;
 
 const DashBoard = () => {
 
     const [creations , setCreations]= useState([])
+    const [loading, setLoading] = useState(true);
+    const {getToken} = useAuth()
     const getDashBoardData = async ()=>{
-        setCreations(dummyCreationData)
+
+        try {
+            setLoading(true);
+            const token = await getToken();
+            const {data} = await axios.get('/api/user/get-user-creations', {
+                headers: {Authorization: `Bearer ${ await getToken()}`},
+            })
+
+            if(data.success){
+                setCreations(data.creations)
+            } else {
+                toast.error(data.message)
+            }
+        } catch (error){
+            console.error('Fetch error:', error);
+            toast.error(error.response?.data?.message || error.message);
+        } finally {
+            setLoading(false)
+        }
     }
     useEffect(()=>{
         getDashBoardData()
@@ -42,12 +66,21 @@ const DashBoard = () => {
 
             </div>
 
-            <div className='space-y-4 '>
-                <p className='mt-7 mb-4'>Recent creations</p>
-                {
-                    creations.map((item)=> <CreationItem key={item.id} item={item}/> )
-                }
-            </div>
+            {
+                loading ? (
+                    <div className='flex justify-center items-center h-3/4'>
+                        <span className='animate-spin rounded-full h-11 w-11 border-3 border-purple-500 border-t-transparent'></span>
+                    </div>
+                ) : (
+                    <div className='space-y-4 '>
+                        <p className='mt-7 mb-4'>Recent creations</p>
+                        {
+                            creations.map((item)=> <CreationItem key={item.id} item={item}/> )
+                        }
+                    </div>
+                )
+            }
+
 
 
 
