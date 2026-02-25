@@ -4,11 +4,16 @@ import { clerkClient } from "@clerk/express";
 import axios from "axios";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
-import PDFParse from "pdf-parse";
+import FormData from "form-data";   
 
 
-// ✅ NEVER initialize env-based SDK at top level in serverless apps
+// ================= AI CLIENT =================
+
 const getAIClient = () => {
+  if (!process.env.GEMINI_API_KEY) {
+    throw new Error("GEMINI_API_KEY missing in environment variables");
+  }
+
   return new OpenAI({
     apiKey: process.env.GEMINI_API_KEY,
     baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/",
@@ -17,21 +22,15 @@ const getAIClient = () => {
 
 
 
-// ========================== GENERATE ARTICLE ==========================
+// ================= GENERATE ARTICLE =================
 
 export const generateArticle = async (req, res) => {
   try {
     const { userId } = req.auth();
     const { prompt, length } = req.body;
-    const plan = req.plan;
-    const free_usage = req.free_usage;
 
-    if (plan !== "premium_pro" && free_usage >= 10) {
-      return res.json({
-        success: false,
-        message: "You have used all your free usages.",
-      });
-    }
+    if (!prompt)
+      return res.status(400).json({ success: false, message: "Prompt required" });
 
     const AI = getAIClient();
 
@@ -39,48 +38,31 @@ export const generateArticle = async (req, res) => {
       model: "gemini-2.0-flash",
       messages: [{ role: "user", content: prompt }],
       temperature: 0.7,
-      max_tokens: length,
+      max_tokens: length || 500,
     });
 
-    const content = response.choices[0].message.content;
+    const content = response.choices?.[0]?.message?.content || "No response";
 
     await sql`
       INSERT INTO creations (user_id, content, prompt, type)
       VALUES (${userId}, ${content}, ${prompt}, 'article')
     `;
 
-    if (plan !== "premium_pro") {
-      await clerkClient.users.updateUserMetadata(userId, {
-        privateMetadata: {
-          free_usage: free_usage + 1,
-        },
-      });
-    }
-
     res.json({ success: true, content });
   } catch (error) {
-    console.error("Generate Article Error:", error);
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Generate Article Error:", error.message);
+    res.status(500).json({ success: false, message: "AI generation failed" });
   }
 };
 
 
 
-// ========================== BLOG TITLE ==========================
+// ================= BLOG TITLE =================
 
 export const generateBlogTitle = async (req, res) => {
   try {
     const { userId } = req.auth();
     const { prompt } = req.body;
-    const plan = req.plan;
-    const free_usage = req.free_usage;
-
-    if (plan !== "premium_pro" && free_usage >= 10) {
-      return res.json({
-        success: false,
-        message: "You have used all your free usages.",
-      });
-    }
 
     const AI = getAIClient();
 
@@ -91,7 +73,7 @@ export const generateBlogTitle = async (req, res) => {
       max_tokens: 100,
     });
 
-    const content = response.choices[0].message.content;
+    const content = response.choices?.[0]?.message?.content || "No response";
 
     await sql`
       INSERT INTO creations (user_id, content, prompt, type)
@@ -100,27 +82,19 @@ export const generateBlogTitle = async (req, res) => {
 
     res.json({ success: true, content });
   } catch (error) {
-    console.error("Blog Title Error:", error);
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Blog Title Error:", error.message);
+    res.status(500).json({ success: false, message: "AI generation failed" });
   }
 };
 
 
 
-// ========================== GENERATE IMAGE ==========================
+// ================= GENERATE IMAGE =================
 
 export const generateImage = async (req, res) => {
   try {
     const { userId } = req.auth();
     const { prompt, publish } = req.body;
-    const plan = req.plan;
-
-    if (plan !== "premium_pro") {
-      return res.json({
-        success: false,
-        message: "Upgrade to premium plan.",
-      });
-    }
 
     const formData = new FormData();
     formData.append("prompt", prompt);
@@ -129,14 +103,16 @@ export const generateImage = async (req, res) => {
       "https://clipdrop-api.co/text-to-image/v1",
       formData,
       {
-        headers: { "x-api-key": process.env.CLIPDROP_API_KEY },
+        headers: {
+          ...formData.getHeaders(),
+          "x-api-key": process.env.CLIPDROP_API_KEY,
+        },
         responseType: "arraybuffer",
       }
     );
 
     const base64image = `data:image/png;base64,${Buffer.from(
-      response.data,
-      "binary"
+      response.data
     ).toString("base64")}`;
 
     const { secure_url } = await cloudinary.uploader.upload(base64image);
@@ -150,50 +126,40 @@ export const generateImage = async (req, res) => {
 
     res.json({ success: true, content: secure_url });
   } catch (error) {
-    console.error("Image Error:", error);
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Image Error:", error.message);
+    res.status(500).json({ success: false, message: "Image generation failed" });
   }
 };
 
 
 
-// ========================== RESUME REVIEW ==========================
+// ================= RESUME REVIEW =================
 
 export const resumeReview = async (req, res) => {
   try {
     const { userId } = req.auth();
     const resume = req.file;
-    const plan = req.plan;
 
-    if (plan !== "premium_pro") {
-      return res.json({
-        success: false,
-        message: "Upgrade to premium plan.",
-      });
-    }
+    if (!resume)
+      return res.json({ success: false, message: "Resume file missing" });
 
-    if (resume.size > 5 * 1024 * 1024) {
-      return res.json({
-        success: false,
-        message: "Resume must be < 5MB",
-      });
-    }
+    
+    const pdfParseModule = await import("pdf-parse");
+    const PDFParse = pdfParseModule.default || pdfParseModule;
 
     const dataBuffer = fs.readFileSync(resume.path);
     const pdfData = await PDFParse(dataBuffer);
 
     const AI = getAIClient();
 
-    const prompt = `Review the resume:\n${pdfData.text}`;
-
     const response = await AI.chat.completions.create({
       model: "gemini-2.0-flash",
-      messages: [{ role: "user", content: prompt }],
+      messages: [{ role: "user", content: pdfData.text }],
       temperature: 0.7,
       max_tokens: 1000,
     });
 
-    const content = response.choices[0].message.content;
+    const content = response.choices?.[0]?.message?.content || "No response";
 
     await sql`
       INSERT INTO creations (user_id, content, prompt, type)
@@ -202,7 +168,7 @@ export const resumeReview = async (req, res) => {
 
     res.json({ success: true, content });
   } catch (error) {
-    console.error("Resume Review Error:", error);
-    res.status(500).json({ success: false, message: error.message });
+    console.error("Resume Review Error:", error.message);
+    res.status(500).json({ success: false, message: "Resume review failed" });
   }
 };
