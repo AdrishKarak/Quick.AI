@@ -131,6 +131,78 @@ export const generateImage = async (req, res) => {
   }
 };
 
+export const removeImageBackground = async (req, res) => {
+    try{
+        const {userId} = req.auth();
+        const image = req.file;
+        const plan = req.plan;
+
+
+        if(plan !== 'premium_pro'){
+            return res.json({success: false, message: 'Upgrade to premium plan to use this feature.'})
+        }
+
+
+        const {secure_url} = await cloudinary.uploader.upload(image.path, {
+            transformation: [
+                {
+                    effect: 'background_removal',
+                    background_removal: 'remove the background'
+                }
+            ]
+        })
+
+        await sql`INSERT INTO creations (user_id, content, prompt, type ) VALUES (${userId}, ${secure_url}, 'Remove background from the image', 'image')`;
+
+        res.json({success: true, content: secure_url})
+
+    } catch (error) {
+        console.log(error.message);
+        res.json({success: false, message: error.message})
+    }
+}
+
+
+export const removeImageObject = async (req, res) => {
+    try {
+        const { userId } = req.auth; // ✅ fixed
+        const { object } = req.body;
+        const image = req.file;
+
+        if (!userId) {
+            return res.status(401).json({ success: false, message: "Unauthorized" });
+        }
+
+        if (!image) {
+            return res.status(400).json({ success: false, message: "No image uploaded" });
+        }
+
+        const plan = req.plan || "free";
+        if (plan !== "premium_pro") {
+            return res
+                .status(403)
+                .json({ success: false, message: "Upgrade to premium plan to use this feature." });
+        }
+
+        // ✅ Upload image to Cloudinary
+        const uploadResult = await cloudinary.uploader.upload(image.path);
+        const imageUrl = cloudinary.url(uploadResult.public_id, {
+            transformation: [{ effect: `gen_remove:${object}` }],
+            resource_type: "image",
+        });
+
+        // ✅ Store result in database
+        await sql`
+            INSERT INTO creations (user_id, content, prompt, type)
+            VALUES (${userId}, ${imageUrl}, ${`removed ${object} from image`}, 'image')
+        `;
+
+        res.json({ success: true, content: imageUrl });
+    } catch (error) {
+        console.error("Remove Image Error:", error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
 
 
 // ================= RESUME REVIEW =================
